@@ -1,6 +1,8 @@
 package dyds.solid.tests;
 
 import dyds.solid.ejC.*;
+import dyds.solid.ejC.Filtro;
+import dyds.solid.ejC.seleccionador.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,17 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EjCTest {
 
-	Filtro filtroNivel;
-	Filtro filtroNombre;
-	Filtro filtroProfesion;
+	Filtro filtro;
+	Seleccionador seleccionador;
 	LogicaPersonajes logicaPersonajes;
 	List<Personaje> personajes;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		filtroNivel = new FiltroNivel();
-		filtroNombre = new FiltroNombre();
-		filtroProfesion = new FiltroProfesion();
+		filtro = new Filtro();
 
 		personajes = new ArrayList<Personaje>();
 
@@ -35,57 +34,64 @@ public class EjCTest {
 		personajes.add(personajeC);
 		personajes.add(personajeD);
 
-		logicaPersonajes = new LogicaPersonajes(filtroNivel, personajes);
+		logicaPersonajes = new LogicaPersonajes(personajes);
 	}
 
 	@Test
 	public void testProfesionesCant() {
-		logicaPersonajes.setFiltro(filtroProfesion);
-		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(Profesion.Granuja);
+		seleccionador = new SeleccionadorPorProfesion(Profesion.Granuja);
+		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 		
 		assertEquals(clientesBB.size(), 2);
 	}
 
 	@Test
 	public void testProfPersonaje1() {
-		logicaPersonajes.setFiltro(filtroProfesion);
-		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(Profesion.Granuja);
+		seleccionador = new SeleccionadorPorProfesion(Profesion.Granuja);
+		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 
 		assertEquals(clientesBB.get(0).getNombre(),"Pungui");
 	}
 
 	@Test
 	public void testProfPersonaje2() {
-		logicaPersonajes.setFiltro(filtroProfesion);
-		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(Profesion.Granuja);
+		seleccionador = new SeleccionadorPorProfesion(Profesion.Granuja);
+		List<Personaje> clientesBB = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 
 		assertEquals(clientesBB.get(1).getNombre(),"El Raton");
 	}
 
 	@Test
 	public void testContieneNombreCant() {
-		logicaPersonajes.setFiltro(filtroNombre);
-		List<Personaje> clientesB = logicaPersonajes.getPersonajesConFiltro("El");
+		seleccionador = new SeleccionadorPorNombre("El");
+		List<Personaje> clientesB = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 
 		assertEquals(clientesB.size(), 2);
 	}
 
 	@Test
 	public void testContieneNombrePers1() {
-		logicaPersonajes.setFiltro(filtroNombre);
-		List<Personaje> clientesB = logicaPersonajes.getPersonajesConFiltro("Con");
+		seleccionador = new SeleccionadorPorNombre("Con");
+		List<Personaje> clientesB = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 
 		assertEquals(clientesB.get(0).getNombre(),"Conano");
 	}
 
 	@Test
 	public void testMasCarosQue() {
-		logicaPersonajes.setFiltro(filtroNivel);
-		List<Personaje> clientesSaldo = logicaPersonajes.getPersonajesConFiltro(50);
+		seleccionador = new SeleccionadorPorNivelMayorA(50);
+		List<Personaje> clientesSaldo = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
 
 		assertEquals(clientesSaldo.size(), 3);
 	}
 
+	@Test
+	public void testNombreYProfesion() {
+		seleccionador = new SeleccionadorPorNivelYProfesion(500, Profesion.Granuja);
+		List<Personaje> clientesSaldo = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionador);
+
+		assertEquals(clientesSaldo.size(), 1);
+	}
 
 
 }

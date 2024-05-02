@@ -55,32 +55,57 @@ El código no respeta varios principios importantes de diseño de software, lo q
 
 
 ## Solución
-Para resolver este problema, se puede utilizar el patrón Strategy. Se creará una interfaz Filtro, 
-que será implementada por las clases FiltroNombre, FiltroNivel y FiltroProfesion implementando cada una el filtro correspondiente. 
-Luego, se modificará la clase LogicaPersonajes para que reciba un filtro en su constructor y la lista de personajes, y eliminando los 
-métodos getPersonajesConNombre(), getPersonajesConNivelMayorA() y getPersonajesConProfesion().
-Se implementa un nuevo método getPersonajesConFiltro() que recibe un filtro de tipo Object permitiendo recibir cualquier filtro que implemente la interfaz Filtro.
-De esta forma si se añaden mas filtros a la aplicación, no será necesario modificar la clase LogicaPersonajes.
+Para resolver este problema, se creará una interfaz Filtro y una interfaz Seleccionador. 
+La clase Filtro la cual recibe una lista de personajes y un Seleccionador para poder filtar aquellos que cumplen con el filtro.
+La interfaz Seleccionador será implementada por la clase SeleccionadorPersonaje que se encargará de seleccionar los personajes que cumplan con el filtro.
+Se implementa un nuevo método getPersonajesConFiltro() en la clase LogicaPersonajes que recibe un filtro y un seleccionador, y devuelve los personajes que cumplen con el filtro.
 
 ```java
-public LogicaPersonajes(List<Personaje> personajes, Filtro filtro) {
-    this.personajes = personajes;
-    this.filtro = filtro;
+public List<Personaje> getPersonajesConFiltro(Filtro filtro, Seleccionador seleccionador) {
+    return filtro.filtrar(personajes, seleccionador);
 }
 ```
 ```java
-public List<Personaje> getPersonajesConFiltro(Object filtro) {
-    return this.filtro.filtrar(personajes, filtro);
+public class Filtro {
+
+   public List<Personaje> filtrar(List<Personaje> personajes, Seleccionador seleccionador) {
+      return personajes.stream().filter(seleccionador::seleccionar).collect(Collectors.toList());
+   }
 }
 ```
 ```java
-public interface Filtro {
-    List<Personaje> filtrar(List<Personaje> personajes, Object filtro);
+public interface Seleccionador {
+    public boolean seleccionar(Personaje personaje);
 }
 ```
+Ahora en el caso de necesitar extender los tipos de fitlrado, solamente se deben crear nuevos seleccioadores.
+
+## Ejemplo
+Se quiere filtar los personajes que tengan un nivel mayor a 50.
+Asuminedo que la clase `LogicaPersonajes` ya fue instanciada y poblada con personajes, el proceso de filtrado se realizaría de la siguiente manera:
+```java
+Filtro filtro = new Filtro();
+Seleccionador seleccionadorNivel = new SeleccionadorPorNivelMayorA(50);
+List<Personaje> personajesFiltrados = logicaPersonajes.getPersonajesConFiltro(filtro, seleccionadorNivel);
+```
+El método `getPersonajesConFiltro()` llama al método `filtrar()` de la clase `Filtro`.
+```java
+public List<Personaje> filtrar(List<Personaje> personajes, Seleccionador seleccionador) {
+   return personajes.stream().filter(seleccionador::seleccionar).collect(Collectors.toList());
+}    
+```
+Este método recorre la lista de personajes y filtra aquellos que cumplan con la condicion provista por el método `seleccionar()` de la clase `Seleccionador`.
+
+```java
+public boolean seleccionar(Personaje personaje) {
+   return personaje.getNivel() > nivel;
+}
+```
+El método `seleccionar` de la clase SeleccionadorPorNivelMayorA compara el nivel del personaje con el nivel provisto en el constructor.
 
 ## Ejecución de Pruebas
 Se han modificado las pruebas para garantizar que los cambios realizados no afecten la funcionalidad del sistema.
+Se extendio la funcionalidad de las pruebas para cubrir los nuevos casos de uso, ya que se han agregado nuevos filtros. 
 
 ## Autor
 * [Franco Leon](https://github.com/francoleon08)

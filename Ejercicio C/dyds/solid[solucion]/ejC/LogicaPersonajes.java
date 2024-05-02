@@ -1,14 +1,14 @@
 package dyds.solid.ejC;
 
+import dyds.solid.ejC.seleccionador.Seleccionador;
+
 import java.util.List;
 
 public class LogicaPersonajes {
 
-	private Filtro filtro;
 	private List<Personaje> personajes;
 
-	public LogicaPersonajes(Filtro filtro, List<Personaje> personajes) {
-		this.filtro = filtro;
+	public LogicaPersonajes(List<Personaje> personajes) {
 		this.personajes = personajes;
 	}
 
@@ -16,12 +16,7 @@ public class LogicaPersonajes {
 		return personajes;
 	}
 
-	public void setFiltro(Filtro filtro) {
-		this.filtro = filtro;
+	public List<Personaje> getPersonajesConFiltro(Filtro filtro, Seleccionador seleccionador) {
+		return filtro.filtrar(personajes, seleccionador);
 	}
-
-	public List<Personaje> getPersonajesConFiltro(Object filtro) {
-		return this.filtro.filtrar(personajes, filtro);
-	}
-
 }
